@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import DepositForm from '../components/DepositForm';
+import WithdrawForm from '../components/WithdrawForm';
+import TransactionHistory from '../components/TransactionHistory';
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -73,18 +76,43 @@ export default function Home() {
       {!user ? (
         <section>
           <p>Sign in with your email (magic link)</p>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" style={{padding:8, width: 300}} />
-          <button onClick={handleLogin} style={{marginLeft:8, padding:'8px 12px'}}>Send login link</button>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            style={{ padding: 8, width: 300 }}
+          />
+          <button onClick={handleLogin} style={{ marginLeft: 8, padding: '8px 12px' }}>
+            Send login link
+          </button>
         </section>
       ) : (
         <section>
           <p>Signed in: <strong>{user.email}</strong></p>
           <p>Wallet balance: {loading ? 'Loading...' : (wallet !== null ? `${wallet} TOKEN` : 'Not available — run SQL in Supabase')}</p>
-          <button onClick={async () => { await supabase.auth.signOut(); setUser(null); setWallet(null); }}>Sign out</button>
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              setUser(null);
+              setWallet(null);
+            }}
+          >
+            Sign out
+          </button>
+
+          {/* Deposit, Withdraw, Transaction History */}
+          <hr style={{ margin: '20px 0' }} />
+          <h2>Deposit / Withdraw</h2>
+          <DepositForm userId={user.id} onWalletUpdate={() => loadWallet(user.id)} />
+          <WithdrawForm userId={user.id} onWalletUpdate={() => loadWallet(user.id)} />
+
+          <hr style={{ margin: '20px 0' }} />
+          <h2>Transaction History</h2>
+          <TransactionHistory userId={user.id} />
         </section>
       )}
 
-      <hr style={{margin:'20px 0'}} />
+      <hr style={{ margin: '20px 0' }} />
 
       <h3>Developer notes</h3>
       <ol>
